@@ -1,4 +1,3 @@
-(ns logical-interpreter)
 
 
 
@@ -48,9 +47,11 @@
 
 (defn make-vector-args
   [vars args]
-
+;  (let vec-args )
   (into [] (for [fact args]
+  ;(prn (split (first (rest fact))  #","))
      (->t-elem (first fact) (set-vars-order vars (split (trim(first (rest fact)))  #"[,| ]+")) ) 
+   ; (prn (first fact) (gen-args vars (into [] (split-elem (first (rest fact))) ))) 
   ))
 )
 
@@ -75,18 +76,26 @@
           vec-facts (split (trim (first (rest vec-rule))) #"(\),)( )*")
           vec-args  (for [fact vec-facts]  (split fact #"[\)|\(|]+") )
          ]
-
+       
+   ;     (prn vec-rule)
+    ;    (prn vec-title)
+   ;     (prn vec-facts)
+   ;     (prn vec-rule)
+   ;     (prn vec-args)
         (if (= (count vec-rule) 2) 
             (->t-elem (first vec-title) (make-vector-args vec-vars vec-args))
         )
     )
 )
 
+; Generate elements 
 (defn gen-fact 
     "A partir de un string, genera un elemento de tipo Fact"
     [str-fact]
     (let [vec-fact  (split (trim str-fact) #"[\(\)]+")
           vec-values (split (trim (first (rest vec-fact))) #"[,\s]+")
+          ;vec-fact (split-elem str-fact)
+          ;vec-values (split (first (rest vec-fact)) #"[,]+")
          ]
         (if (> (count vec-fact) 1)
              (->t-elem (first vec-fact)  (conj [] (vec vec-values)))
@@ -141,6 +150,8 @@
   "Determina si la fact ya está en la lista de facts"
   [rule atom-rules]
    (>= (.indexOf (map (fn [x] (:name @x)) @atom-rules) (:name rule)) 0)
+;  (prn  (.indexOf (map (fn [x] (:name @x)) @atom-rules) (:name rule)))
+ ;(prn  (map (fn [x] (:name @x)) @atom-rules))
              
 )
 
@@ -177,6 +188,7 @@
     (cond
         (is-rule? elem) (add-new-elem (atom (gen-rule elem)) (:rules @database))
         (is-fact? elem) (add-fact (gen-fact elem) (:facts @database))
+    ;    :else (add-fact (gen-fact elem) (:facts @database))
     )
 )
 
@@ -227,6 +239,11 @@
     [name arg-fact vector-args]
     (some true? (for [arg vector-args] (= arg arg-fact)))
 )
+;  (let [vector-args (get-args-of (:name fact) atom-facts)
+;        arg-fact  (first (:args fact))
+ ;      ]
+     
+;  )
 
 
 
@@ -240,7 +257,12 @@
         vector-facts (for [fact vector-atom-facts] 
               (gen-evaluate-elem (:name fact) (set-args-in-order  vector-pos-args (:args fact))))
        ]
-
+     
+  ;   (prn atom-rules)
+  ;   (prn atom-facts)
+ ;    (prn vector-facts)
+  ;   (prn  vector-pos-args )
+     
      (every? true? 
  
         (for [fact vector-atom-facts] 
@@ -250,6 +272,13 @@
      )
   )
 )
+
+
+
+;; Testeo de carga base
+;(def atom-rules (atom [] ))
+;(def atom-facts (atom [] ))
+;(def atom-database (atom (->t-db atom-facts atom-rules)))
 
 
 (defn validate-query 
@@ -266,8 +295,7 @@
 
 
 (defn evaluate-query
-"Returns true if the rules and facts in database imply query, false if not. If
-either input can't be parsed, returns nil"
+  ""
   [str-database query]
   (let [atom-rules (atom [] )
         atom-facts (atom [] )
@@ -275,8 +303,10 @@ either input can't be parsed, returns nil"
         charged-db (charge-db str-database atom-database)
         format-query (validate-query query)
         ]
+;     (prn  charged-db)
       (if (not (nil? format-query))
           (if (not (some nil? charged-db))
+ ;   (if (not-empty charged-db)
             (cond 
               (exist-rule? format-query (:rules @atom-database)) (evaluate-rule format-query atom-database)
               (exist-fact? format-query (:facts @atom-database)) (evaluate-fact format-query (:facts @atom-database))
@@ -286,6 +316,10 @@ either input can't be parsed, returns nil"
       )
   )
 )
+
+
+
+
 
 
 
