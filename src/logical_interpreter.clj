@@ -25,20 +25,12 @@
 )
 
 
-(defn get-pos-var-into-args
-    "Devuelve la posición en el vector de variables, de la variable pasada"
-    [act-var vec-args]
-    [(.indexOf vec-args act-var)]
+(defn set-vars-order
+  ""
+  [vars args]
+   (into [] (for [v args] (.indexOf vars v)))
 )
 
-(defn set-vars-order
-    "reemplaza el valor del argumento del fact por la posición según el orden de las variables "
-    [vars args]
-    (if (= (count vars) 1)
-        (get-pos-var-into-args (first vars) args)
-        (into (get-pos-var-into-args (first vars) args) (set-vars-order (rest vars) args))
-    )
-)
 
 
 (defn make-vector-args
