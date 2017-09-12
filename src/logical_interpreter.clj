@@ -1,4 +1,4 @@
-
+(ns logical-interpreter)
 
 
 (use '[clojure.string :only (split trim includes?)])
